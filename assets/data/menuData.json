@@ -1,0 +1,1045 @@
+[
+  {
+    "id": 1,
+    "name": "김치찌개",
+    "base_price": 9000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 2,
+    "name": "제육볶음",
+    "base_price": 9500,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 3,
+    "name": "비빔밥",
+    "base_price": 8500,
+    "category_large": "한식",
+    "category_medium": "밥",
+    "tags": [
+      "매운맛",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 4,
+    "name": "된장찌개",
+    "base_price": 8500,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 5,
+    "name": "순두부찌개",
+    "base_price": 9000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "매운맛",
+      "해산물",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 6,
+    "name": "불고기덮밥",
+    "base_price": 10000,
+    "category_large": "한식",
+    "category_medium": "밥",
+    "tags": [
+      "소고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 7,
+    "name": "칼국수",
+    "base_price": 8500,
+    "category_large": "한식",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 8,
+    "name": "냉면",
+    "base_price": 10000,
+    "category_large": "한식",
+    "category_medium": "면",
+    "tags": [
+      "소고기",
+      "밀가루",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 9,
+    "name": "삼겹살",
+    "base_price": 15000,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "마늘/파",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 10,
+    "name": "갈비탕",
+    "base_price": 13000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "소고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 11,
+    "name": "육개장",
+    "base_price": 10000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "소고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 12,
+    "name": "설렁탕",
+    "base_price": 10000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "소고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 13,
+    "name": "부대찌개",
+    "base_price": 11000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "느끼함",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 14,
+    "name": "김밥",
+    "base_price": 4500,
+    "category_large": "한식",
+    "category_medium": "밥",
+    "tags": [
+      "밀가루"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 15,
+    "name": "쌈밥",
+    "base_price": 10000,
+    "category_large": "한식",
+    "category_medium": "밥",
+    "tags": [
+      "돼지고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 16,
+    "name": "닭갈비",
+    "base_price": 12000,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "닭고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 17,
+    "name": "찜닭",
+    "base_price": 12000,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "닭고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 18,
+    "name": "보쌈",
+    "base_price": 14000,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 19,
+    "name": "잔치국수",
+    "base_price": 7000,
+    "category_large": "한식",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 20,
+    "name": "콩나물국밥",
+    "base_price": 8000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 21,
+    "name": "짜장면",
+    "base_price": 7000,
+    "category_large": "중식",
+    "category_medium": "면",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 22,
+    "name": "짬뽕",
+    "base_price": 8500,
+    "category_large": "중식",
+    "category_medium": "면",
+    "tags": [
+      "해산물",
+      "매운맛",
+      "밀가루",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 23,
+    "name": "탕수육",
+    "base_price": 16000,
+    "category_large": "중식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 24,
+    "name": "마라탕",
+    "base_price": 12000,
+    "category_large": "중식",
+    "category_medium": "국물",
+    "tags": [
+      "매운맛",
+      "마늘/파",
+      "해산물"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 25,
+    "name": "볶음밥",
+    "base_price": 8000,
+    "category_large": "중식",
+    "category_medium": "밥",
+    "tags": [
+      "돼지고기",
+      "마늘/파",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 26,
+    "name": "마파두부덮밥",
+    "base_price": 9000,
+    "category_large": "중식",
+    "category_medium": "밥",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 27,
+    "name": "꿔바로우",
+    "base_price": 17000,
+    "category_large": "중식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 28,
+    "name": "고추잡채밥",
+    "base_price": 10000,
+    "category_large": "중식",
+    "category_medium": "밥",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 29,
+    "name": "울면",
+    "base_price": 9000,
+    "category_large": "중식",
+    "category_medium": "면",
+    "tags": [
+      "해산물",
+      "밀가루"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 30,
+    "name": "양장피",
+    "base_price": 18000,
+    "category_large": "중식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "해산물",
+      "갑각류",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 31,
+    "name": "규동",
+    "base_price": 9500,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "소고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 32,
+    "name": "라멘",
+    "base_price": 10000,
+    "category_large": "일식",
+    "category_medium": "면",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 33,
+    "name": "돈카츠",
+    "base_price": 11000,
+    "category_large": "일식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 34,
+    "name": "초밥",
+    "base_price": 15000,
+    "category_large": "일식",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "생선류",
+      "해산물"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 35,
+    "name": "우동",
+    "base_price": 8500,
+    "category_large": "일식",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 36,
+    "name": "가츠동",
+    "base_price": 10000,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 37,
+    "name": "오야코동",
+    "base_price": 9500,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "닭고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 38,
+    "name": "소바",
+    "base_price": 9000,
+    "category_large": "일식",
+    "category_medium": "면",
+    "tags": [
+      "밀가루"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 39,
+    "name": "카레라이스",
+    "base_price": 9000,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 40,
+    "name": "텐동",
+    "base_price": 12000,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "해산물",
+      "갑각류",
+      "밀가루",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 41,
+    "name": "연어덮밥",
+    "base_price": 14000,
+    "category_large": "일식",
+    "category_medium": "밥",
+    "tags": [
+      "생선류",
+      "해산물"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 42,
+    "name": "타코야키",
+    "base_price": 7000,
+    "category_large": "일식",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "해산물",
+      "밀가루",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 43,
+    "name": "파스타",
+    "base_price": 13000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "유제품",
+      "느끼함",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 44,
+    "name": "피자",
+    "base_price": 18000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "밀가루",
+      "유제품",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 45,
+    "name": "햄버거",
+    "base_price": 8500,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "소고기",
+      "밀가루",
+      "유제품",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 46,
+    "name": "샌드위치",
+    "base_price": 7500,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "밀가루",
+      "유제품",
+      "오이"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 47,
+    "name": "스테이크덮밥",
+    "base_price": 14000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "밥",
+    "tags": [
+      "소고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 48,
+    "name": "리조또",
+    "base_price": 13000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "밥",
+    "tags": [
+      "유제품",
+      "느끼함",
+      "버섯"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 49,
+    "name": "크림수프",
+    "base_price": 8000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "국물",
+    "tags": [
+      "유제품",
+      "느끼함",
+      "버섯"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 50,
+    "name": "치킨버거",
+    "base_price": 8500,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "닭고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 51,
+    "name": "핫도그",
+    "base_price": 6500,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "돼지고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 52,
+    "name": "치즈오븐스파게티",
+    "base_price": 12000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "유제품",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 53,
+    "name": "쌀국수",
+    "base_price": 10500,
+    "category_large": "기타",
+    "category_medium": "면",
+    "tags": [
+      "소고기",
+      "고수",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 54,
+    "name": "분식 세트",
+    "base_price": 9000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "매운맛",
+      "밀가루",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 55,
+    "name": "떡볶이",
+    "base_price": 7000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "매운맛",
+      "밀가루"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 56,
+    "name": "치킨",
+    "base_price": 19000,
+    "category_large": "기타",
+    "category_medium": "고기·요리",
+    "tags": [
+      "닭고기",
+      "밀가루",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 57,
+    "name": "샐러드",
+    "base_price": 10000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "오이",
+      "유제품"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 58,
+    "name": "포케",
+    "base_price": 12000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [
+      "생선류",
+      "해산물",
+      "오이"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 59,
+    "name": "반미",
+    "base_price": 8500,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "돼지고기",
+      "고수",
+      "오이",
+      "밀가루",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 60,
+    "name": "팟타이",
+    "base_price": 11000,
+    "category_large": "기타",
+    "category_medium": "면",
+    "tags": [
+      "해산물",
+      "갑각류",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 61,
+    "name": "나시고랭",
+    "base_price": 11000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [
+      "해산물",
+      "갑각류",
+      "매운맛",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 62,
+    "name": "타코",
+    "base_price": 9500,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "소고기",
+      "밀가루",
+      "고수",
+      "매운맛",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 63,
+    "name": "부리또",
+    "base_price": 10000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "소고기",
+      "밀가루",
+      "유제품",
+      "고수",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 64,
+    "name": "인도커리",
+    "base_price": 12000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [
+      "유제품",
+      "매운맛",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 65,
+    "name": "탄탄면",
+    "base_price": 10000,
+    "category_large": "중식",
+    "category_medium": "면",
+    "tags": [
+      "돼지고기",
+      "매운맛",
+      "밀가루",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 66,
+    "name": "훠궈",
+    "base_price": 18000,
+    "category_large": "중식",
+    "category_medium": "국물",
+    "tags": [
+      "소고기",
+      "매운맛",
+      "해산물",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 67,
+    "name": "오므라이스",
+    "base_price": 9000,
+    "category_large": "양식/패스트푸드",
+    "category_medium": "밥",
+    "tags": [
+      "유제품",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 68,
+    "name": "치킨마요덮밥",
+    "base_price": 8000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [
+      "닭고기",
+      "느끼함",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 69,
+    "name": "돼지국밥",
+    "base_price": 9000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "돼지고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 70,
+    "name": "닭곰탕",
+    "base_price": 9000,
+    "category_large": "한식",
+    "category_medium": "국물",
+    "tags": [
+      "닭고기",
+      "마늘/파",
+      "육류전체/채식"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 71,
+    "name": "해물파전",
+    "base_price": 13000,
+    "category_large": "한식",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "해산물",
+      "밀가루",
+      "마늘/파"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 72,
+    "name": "고등어구이",
+    "base_price": 11000,
+    "category_large": "한식",
+    "category_medium": "고기·요리",
+    "tags": [
+      "생선류",
+      "해산물"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 73,
+    "name": "아보카도덮밥",
+    "base_price": 11000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [],
+    "image_path": ""
+  },
+  {
+    "id": 74,
+    "name": "비건김밥",
+    "base_price": 6500,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [],
+    "image_path": ""
+  },
+  {
+    "id": 75,
+    "name": "버섯덮밥",
+    "base_price": 9000,
+    "category_large": "기타",
+    "category_medium": "밥",
+    "tags": [
+      "버섯"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 76,
+    "name": "두부스테이크",
+    "base_price": 10000,
+    "category_large": "기타",
+    "category_medium": "고기·요리",
+    "tags": [],
+    "image_path": ""
+  },
+  {
+    "id": 77,
+    "name": "쉬림프샐러드",
+    "base_price": 12000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "해산물",
+      "갑각류",
+      "오이"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 78,
+    "name": "연어샐러드",
+    "base_price": 13000,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "생선류",
+      "해산물",
+      "오이"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 79,
+    "name": "로제떡볶이",
+    "base_price": 9500,
+    "category_large": "기타",
+    "category_medium": "기타/패스트푸드",
+    "tags": [
+      "매운맛",
+      "유제품",
+      "밀가루",
+      "느끼함"
+    ],
+    "image_path": ""
+  },
+  {
+    "id": 80,
+    "name": "크림카레우동",
+    "base_price": 11000,
+    "category_large": "일식",
+    "category_medium": "면",
+    "tags": [
+      "밀가루",
+      "유제품",
+      "느끼함"
+    ],
+    "image_path": ""
+  }
+]
