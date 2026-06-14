@@ -314,7 +314,6 @@ class _MainShellState extends State<MainShell> {
         child: Column(
           children: [
             Expanded(child: pages[_tab]),
-            const AdPlaceholder(),
           ],
         ),
       ),
@@ -2007,7 +2006,7 @@ class AdPlaceholder extends StatelessWidget {
         border: Border(top: BorderSide(color: appLine)),
       ),
       child: const Text(
-        'AdMob 배너 영역',
+        '',
         style: TextStyle(color: appMutedText, fontSize: 12),
       ),
     );
