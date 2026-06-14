@@ -74,6 +74,12 @@ build\app\outputs\bundle\release\app-release.aab
 정식 업로드 전에는 `android/key.properties`와 upload keystore를 준비해야 합니다. 예시는 [android/key.properties.example](android/key.properties.example)를 참고하세요.
 자세한 절차는 [업로드 키 생성 가이드](docs/upload_key_guide.md)를 참고하세요.
 
+키를 이미 만들었다면, 아래 스크립트로 `android/key.properties`를 생성할 수 있습니다.
+
+```powershell
+.\configure_upload_key.cmd
+```
+
 ## 스토어 준비 문서
 
 - [개인정보처리방침 초안](docs/privacy_policy.md)

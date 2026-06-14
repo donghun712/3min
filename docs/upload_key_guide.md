@@ -31,6 +31,14 @@ storeFile=app/upload-keystore.jks
 
 `android\key.properties`와 `android\app\upload-keystore.jks`는 `.gitignore`에 들어가 있으므로 GitHub에 올리지 않습니다.
 
+키를 이미 만들었다면 아래 스크립트로 `android\key.properties`를 생성할 수도 있습니다.
+
+```powershell
+.\configure_upload_key.cmd
+```
+
+주의: 이 배치 스크립트의 비밀번호 입력은 화면에 보일 수 있습니다. 비밀번호가 보이는 것이 싫다면 `android\key.properties.example`을 직접 복사해서 편집하세요.
+
 ## 3. 정식 release AAB 빌드
 
 ```powershell
