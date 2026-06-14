@@ -9,7 +9,9 @@ build/
 android/.gradle/
 android/local.properties
 android/key.properties
+android/key.properties.bak-*
 android/app/upload-keystore.jks
+android/app/upload-keystore.jks.bak-*
 *.jks
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh

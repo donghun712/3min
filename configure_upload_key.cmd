@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 set KEYSTORE=android\app\upload-keystore.jks
 set PROPS=android\key.properties
 
@@ -11,8 +11,11 @@ if not exist "%KEYSTORE%" (
 
 if exist "%PROPS%" (
   echo %PROPS% already exists.
-  echo Delete it first if you intentionally want to recreate it.
-  exit /b 1
+  choice /c YN /n /m "Recreate it? This will overwrite the local signing password file. [y/N]: "
+  if errorlevel 2 (
+    echo Canceled.
+    exit /b 1
+  )
 )
 
 echo This will create %PROPS%.
@@ -27,7 +30,7 @@ set /p KEYPASS=Key password, usually same as keystore password:
   echo storePassword=%STOREPASS%
   echo keyPassword=%KEYPASS%
   echo keyAlias=upload
-  echo storeFile=app/upload-keystore.jks
+  echo storeFile=upload-keystore.jks
 ) > "%PROPS%"
 
 echo.
