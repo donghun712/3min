@@ -72,11 +72,13 @@ build\app\outputs\bundle\release\app-release.aab
 ```
 
 정식 업로드 전에는 `android/key.properties`와 upload keystore를 준비해야 합니다. 예시는 [android/key.properties.example](android/key.properties.example)를 참고하세요.
+자세한 절차는 [업로드 키 생성 가이드](docs/upload_key_guide.md)를 참고하세요.
 
 ## 스토어 준비 문서
 
 - [개인정보처리방침 초안](docs/privacy_policy.md)
 - [Play Store 등록 문구 초안](docs/play_store_listing.md)
 - [릴리즈 체크리스트](docs/release_checklist.md)
+- [업로드 키 생성 가이드](docs/upload_key_guide.md)
 
 사진은 1차 출시에서는 사용하지 않습니다. 추후 `assets/data/menuData.json`의 `image_path`를 채우고 `pubspec.yaml`에 이미지 에셋 경로를 추가하면 됩니다.

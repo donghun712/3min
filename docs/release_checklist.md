@@ -11,6 +11,7 @@
 - [x] release AAB 빌드 스크립트 추가
 - [x] release AAB dry-run 빌드 성공
 - [x] 앱 아이콘 교체
+- [x] upload keystore 생성 스크립트 추가
 - [ ] upload keystore 생성
 - [ ] `android/key.properties` 작성
 - [ ] 실제 release 서명 AAB 빌드
