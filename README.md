@@ -2,48 +2,81 @@
 
 서버 없이 동작하는 Android 전용 Flutter 로컬 앱입니다. 메뉴 데이터, 설정, 추천 결과, 식사 기록을 모두 기기 안에서 처리합니다.
 
-## 구현 범위
+## 현재 구현 범위
 
-- 최초 실행 온보딩 예산 설정
-- 메뉴 80종 JSON 로딩
-- 메뉴별 임시 기피 태그 필터링
-- 대분류/중분류/예산/기피 태그 기반 필터
-- 스와이프 추천 흐름
-- 체류 시간 기반 Yes/No 기록
-- 와일드카드/부전승 토너먼트 생성
-- 16강 초과 토너먼트 자동 컷오프
-- 고속 랜덤 추천
-- 최근 10회 식사 기록 및 직접 수정
-- 설정 탭의 기피 태그 토글 및 데이터 초기화
+- 최초 실행 온보딩과 못먹는 음식 태그 조사
+- 설정 탭에서 못먹는 음식 태그 변경 및 앱 데이터 초기화
+- 한식/중식/양식/일식/기타 총 283개 로컬 메뉴 데이터
+- 가격대, 대분류, 중분류 기반 추천
+- 카드 스와이프 추천
+  - 오른쪽 스와이프: 좋아요
+  - 왼쪽 스와이프: 싫어요
+  - 카드별 10초 제한 및 시간 초과 자동 탈락
+- 좋아요 메뉴 기반 토너먼트
+- 와일드카드/부전승 보정
+- 가격만 고르는 순수 랜덤 추천 탭
+- 최근 10회 식사 기록과 직접 수정
 - 하단 AdMob 배너 영역 플레이스홀더
-- 핵심 추천 로직 테스트
+- 핵심 로직 및 데이터 품질 회귀 테스트
 
-## 실행
+## Android 정보
 
-이 저장소는 앱 소스 중심으로 구성되어 있습니다. Flutter SDK가 설치된 환경에서 Android 프로젝트 파일을 생성한 뒤 실행하세요.
-
-```bash
-flutter create --platforms=android .
-flutter pub get
-flutter run
-```
+- 앱 이름: `3분세끼`
+- Application ID: `com.threeminmeals.app`
+- Version: `1.0.0+1`
+- 아이콘: `assets/store/icon-512.png`
 
 ## 테스트
 
-```bash
+이 PC에서는 저장소 루트에서 아래 배치 파일을 쓰면 PATH 문제 없이 테스트할 수 있습니다.
+
+```powershell
+.\test_app.cmd
+```
+
+직접 Flutter 명령을 쓸 수 있는 환경이라면:
+
+```powershell
 flutter test
 flutter analyze
 ```
 
-앱에서 직접 확인할 흐름:
+## 실행
 
-1. 온보딩에서 기본 예산을 설정합니다.
-2. 추천 탭에서 예산, 대분류, 중분류를 바꿔 후보가 변하는지 확인합니다.
-3. 설정 탭에서 `돼지고기`, `매운맛`, `해산물` 같은 기피 태그를 켠 뒤 추천 후보에서 제외되는지 확인합니다.
-4. 추천 탭에서 여러 메뉴를 좋아요/패스한 뒤 토너먼트를 진행합니다.
-5. 우승 메뉴를 `식사 완료 기록하기`로 저장하고 기록 탭에 쌓이는지 확인합니다.
-6. 기록 탭에서 항목을 눌러 실제 먹은 메뉴명으로 수정합니다.
-7. 랜덤 탭에서 추천을 돌리고 `확정`을 눌러 기록되는지 확인합니다.
-8. 설정 탭에서 앱 데이터를 초기화하면 온보딩으로 돌아가는지 확인합니다.
+에뮬레이터를 켠 뒤 앱을 실행합니다.
 
-사진은 추후 `assets/data/menuData.json`의 `image_path`를 채우고 `pubspec.yaml`에 이미지 에셋 경로를 추가하면 됩니다.
+```powershell
+.\start_android_emulator.cmd
+.\run_app.cmd
+```
+
+이미 APK가 만들어져 있다면 직접 설치/실행할 수도 있습니다.
+
+```powershell
+C:\Users\nkehd\AppData\Local\Android\sdk\platform-tools\adb.exe -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
+C:\Users\nkehd\AppData\Local\Android\sdk\platform-tools\adb.exe -s emulator-5554 shell monkey -p com.threeminmeals.app -c android.intent.category.LAUNCHER 1
+```
+
+## 릴리즈 빌드
+
+Play Store 업로드용 AAB는 아래 명령으로 만듭니다.
+
+```powershell
+.\build_release.cmd
+```
+
+출력 경로:
+
+```text
+build\app\outputs\bundle\release\app-release.aab
+```
+
+정식 업로드 전에는 `android/key.properties`와 upload keystore를 준비해야 합니다. 예시는 [android/key.properties.example](android/key.properties.example)를 참고하세요.
+
+## 스토어 준비 문서
+
+- [개인정보처리방침 초안](docs/privacy_policy.md)
+- [Play Store 등록 문구 초안](docs/play_store_listing.md)
+- [릴리즈 체크리스트](docs/release_checklist.md)
+
+사진은 1차 출시에서는 사용하지 않습니다. 추후 `assets/data/menuData.json`의 `image_path`를 채우고 `pubspec.yaml`에 이미지 에셋 경로를 추가하면 됩니다.

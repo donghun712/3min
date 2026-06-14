@@ -1,7 +1,7 @@
 name: three_min_meals
 description: A local-only Flutter MVP for the 3min 3meals food recommendation app.
 publish_to: "none"
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

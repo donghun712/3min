@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -5,30 +6,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const appPrimary = Color(0xffff6b35);
+const appText = Color(0xff111827);
+const appMutedText = Color(0xff6b7280);
+const appLine = Color(0xffe5e7eb);
+const appSoftSurface = Color(0xfff8fafc);
+const appLike = Color(0xff22c55e);
+const appDislike = Color(0xfff43f5e);
+
 const keyFirstLaunch = 'KEY_FIRST_LAUNCH';
 const keyMaxPrice = 'KEY_MAX_PRICE';
 const keyExcludedTags = 'KEY_EXCLUDED_TAGS';
 const keyRecentWins = 'KEY_RECENT_WINS';
 const keyMealHistory = 'KEY_MEAL_HISTORY';
 
-const largeCategories = ['한식', '중식', '일식', '양식/패스트푸드', '기타'];
-const mediumCategories = ['밥', '면', '국물', '고기·요리', '기타/패스트푸드'];
+const largeCategories = ['한식', '중식', '양식', '일식', '기타'];
+const mediumCategories = ['밥', '면', '육류', '기타'];
 const dislikeTags = [
   '돼지고기',
   '소고기',
   '닭고기',
-  '육류전체/채식',
+  '육류전체',
   '해산물',
+  '생선',
   '갑각류',
-  '생선류',
-  '오이',
-  '고수',
-  '버섯',
   '매운맛',
-  '느끼함',
-  '마늘/파',
   '유제품',
   '밀가루',
+  '버섯',
+  '고수',
 ];
 
 void main() {
@@ -76,13 +82,13 @@ class _ThreeMinMealsAppState extends State<ThreeMinMealsApp> {
         .toList();
   }
 
-  Future<void> _finishOnboarding(int price) async {
+  Future<void> _finishOnboarding(Set<String> excludedTags) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(keyMaxPrice, price);
+    await prefs.setStringList(keyExcludedTags, excludedTags.toList());
     await prefs.setBool(keyFirstLaunch, false);
     setState(() {
       _firstLaunch = false;
-      _maxPrice = price;
+      _excludedTags = excludedTags;
     });
   }
 
@@ -92,12 +98,19 @@ class _ThreeMinMealsAppState extends State<ThreeMinMealsApp> {
     setState(() => _excludedTags = tags);
   }
 
+  Future<void> _setDefaultPrice(int price) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(keyMaxPrice, price);
+    setState(() => _maxPrice = price);
+  }
+
   Future<void> _saveMeal(String menuName) async {
     final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
     final record = MealRecord(
       menuName: menuName,
-      createdAt: DateTime.now(),
-      periodLabel: mealPeriodLabel(DateTime.now()),
+      createdAt: now,
+      periodLabel: mealPeriodLabel(now),
     );
     final history = [record, ..._mealHistory].take(10).toList();
     final wins = [menuName, ..._recentWins].take(10).toList();
@@ -143,11 +156,66 @@ class _ThreeMinMealsAppState extends State<ThreeMinMealsApp> {
       title: '3분세끼',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xfff05a28),
+          seedColor: appPrimary,
           brightness: Brightness.light,
+          surface: Colors.white,
         ),
+        scaffoldBackgroundColor: Colors.white,
+        dividerColor: appLine,
         useMaterial3: true,
-        fontFamily: 'Roboto',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: appText,
+          surfaceTintColor: Colors.white,
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          indicatorColor: const Color(0xffffeee6),
+          surfaceTintColor: Colors.white,
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return TextStyle(
+              color: selected ? appPrimary : appMutedText,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              fontSize: 12,
+            );
+          }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return IconThemeData(
+              color: selected ? appPrimary : appMutedText,
+            );
+          }),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: appPrimary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: appText,
+            side: const BorderSide(color: appLine),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: appSoftSurface,
+          selectedColor: const Color(0xffffeee6),
+          checkmarkColor: appPrimary,
+          side: const BorderSide(color: appLine),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        textTheme: ThemeData.light().textTheme.apply(
+              bodyColor: appText,
+              displayColor: appText,
+            ),
       ),
       home: FutureBuilder<void>(
         future: _bootFuture,
@@ -157,7 +225,7 @@ class _ThreeMinMealsAppState extends State<ThreeMinMealsApp> {
           }
           if (_firstLaunch) {
             return OnboardingScreen(
-              initialPrice: _maxPrice,
+              excludedTags: _excludedTags,
               onDone: _finishOnboarding,
             );
           }
@@ -169,6 +237,7 @@ class _ThreeMinMealsAppState extends State<ThreeMinMealsApp> {
             mealHistory: _mealHistory,
             onMealConfirmed: _saveMeal,
             onExcludedTagsChanged: _setExcludedTags,
+            onDefaultPriceChanged: _setDefaultPrice,
             onMealChanged: _updateMeal,
             onReset: _resetData,
           );
@@ -187,6 +256,7 @@ class MainShell extends StatefulWidget {
     required this.mealHistory,
     required this.onMealConfirmed,
     required this.onExcludedTagsChanged,
+    required this.onDefaultPriceChanged,
     required this.onMealChanged,
     required this.onReset,
     super.key,
@@ -199,6 +269,7 @@ class MainShell extends StatefulWidget {
   final List<MealRecord> mealHistory;
   final ValueChanged<String> onMealConfirmed;
   final ValueChanged<Set<String>> onExcludedTagsChanged;
+  final ValueChanged<int> onDefaultPriceChanged;
   final Future<void> Function(int index, String name) onMealChanged;
   final VoidCallback onReset;
 
@@ -217,12 +288,14 @@ class _MainShellState extends State<MainShell> {
         defaultPrice: widget.maxPrice,
         excludedTags: widget.excludedTags,
         recentWins: widget.recentWins,
+        onDefaultPriceChanged: widget.onDefaultPriceChanged,
         onMealConfirmed: widget.onMealConfirmed,
       ),
       RandomTab(
         menus: widget.menus,
         defaultPrice: widget.maxPrice,
         excludedTags: widget.excludedTags,
+        onDefaultPriceChanged: widget.onDefaultPriceChanged,
         onMealConfirmed: widget.onMealConfirmed,
       ),
       HistoryTab(
@@ -250,7 +323,7 @@ class _MainShellState extends State<MainShell> {
         onDestinationSelected: (index) => setState(() => _tab = index),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.emoji_events), label: '추천'),
-          NavigationDestination(icon: Icon(Icons.flash_on), label: '랜덤'),
+          NavigationDestination(icon: Icon(Icons.shuffle), label: '랜덤'),
           NavigationDestination(icon: Icon(Icons.calendar_month), label: '기록'),
           NavigationDestination(icon: Icon(Icons.settings), label: '설정'),
         ],
@@ -259,12 +332,23 @@ class _MainShellState extends State<MainShell> {
   }
 }
 
+enum RecommendStage {
+  idle,
+  price,
+  large,
+  medium,
+  swiping,
+  result,
+  tournament,
+}
+
 class RecommendTab extends StatefulWidget {
   const RecommendTab({
     required this.menus,
     required this.defaultPrice,
     required this.excludedTags,
     required this.recentWins,
+    required this.onDefaultPriceChanged,
     required this.onMealConfirmed,
     super.key,
   });
@@ -273,6 +357,7 @@ class RecommendTab extends StatefulWidget {
   final int defaultPrice;
   final Set<String> excludedTags;
   final List<String> recentWins;
+  final ValueChanged<int> onDefaultPriceChanged;
   final ValueChanged<String> onMealConfirmed;
 
   @override
@@ -280,95 +365,181 @@ class RecommendTab extends StatefulWidget {
 }
 
 class _RecommendTabState extends State<RecommendTab> {
+  final Random _random = Random();
   final List<ScoredMenu> _yes = [];
   final List<ScoredMenu> _no = [];
-  final Random _random = Random();
+  RecommendStage _stage = RecommendStage.idle;
+  List<MenuItem> _candidates = [];
+  Tournament? _tournament;
+  int _price = 12000;
   Set<String> _large = {};
   Set<String> _medium = {};
-  int _price = 12000;
   int _index = 0;
+  int _remaining = 10;
   DateTime _shownAt = DateTime.now();
-  Tournament? _tournament;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _price = widget.defaultPrice;
-    _shownAt = DateTime.now();
   }
 
-  List<MenuItem> get _candidates => filterMenus(
-        widget.menus,
-        maxPrice: _price,
-        excludedTags: widget.excludedTags,
-        large: _large,
-        medium: _medium,
-      );
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
-  void _changePrice(int price) {
+  void _resetFlow() {
+    _timer?.cancel();
     setState(() {
-      _price = price;
+      _stage = RecommendStage.idle;
+      _candidates = [];
+      _tournament = null;
       _yes.clear();
       _no.clear();
+      _large = {};
+      _medium = {};
       _index = 0;
-      _tournament = null;
-      _shownAt = DateTime.now();
+      _remaining = 10;
     });
   }
 
-  void _changeLarge(Set<String> items) {
+  void _start() {
+    _timer?.cancel();
     setState(() {
-      _large = items;
+      _stage = RecommendStage.price;
+      _price = widget.defaultPrice;
+      _candidates = [];
+      _tournament = null;
       _yes.clear();
       _no.clear();
+      _large = {};
+      _medium = {};
       _index = 0;
-      _tournament = null;
-      _shownAt = DateTime.now();
     });
   }
 
-  void _changeMedium(Set<String> items) {
+  void _choosePrice() {
+    widget.onDefaultPriceChanged(_price);
+    setState(() => _stage = RecommendStage.large);
+  }
+
+  void _toggleLarge(String category) {
     setState(() {
-      _medium = items;
-      _yes.clear();
-      _no.clear();
-      _index = 0;
-      _tournament = null;
-      _shownAt = DateTime.now();
+      final next = {..._large};
+      next.contains(category) ? next.remove(category) : next.add(category);
+      _large = next;
     });
   }
 
-  void _startSwipe() {
+  void _toggleMedium(String category) {
     setState(() {
-      _yes.clear();
-      _no.clear();
-      _index = 0;
-      _tournament = null;
-      _shownAt = DateTime.now();
+      final next = {..._medium};
+      next.contains(category) ? next.remove(category) : next.add(category);
+      _medium = next;
     });
   }
 
-  void _swipe(bool liked) {
-    final candidates = _candidates;
-    if (_index >= candidates.length) return;
+  void _confirmLarge() {
+    if (_large.isEmpty) {
+      _showSnack('카테고리를 하나 이상 골라주세요.');
+      return;
+    }
+    setState(() => _stage = RecommendStage.medium);
+  }
+
+  void _confirmMedium() {
+    if (_medium.isEmpty) {
+      _showSnack('밥, 면, 육류, 기타 중 하나 이상 골라주세요.');
+      return;
+    }
+    final candidates = filterMenus(
+      widget.menus,
+      targetPrice: _price,
+      excludedTags: widget.excludedTags,
+      large: _large,
+      medium: _medium,
+    )..shuffle(_random);
+    setState(() {
+      _candidates = candidates.take(64).toList();
+      _index = 0;
+      _yes.clear();
+      _no.clear();
+      _stage = _candidates.isEmpty ? RecommendStage.result : RecommendStage.swiping;
+    });
+    if (_candidates.isNotEmpty) _startCardTimer();
+  }
+
+  void _startCardTimer() {
+    _timer?.cancel();
+    setState(() {
+      _remaining = 10;
+      _shownAt = DateTime.now();
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _stage != RecommendStage.swiping) {
+        timer.cancel();
+        return;
+      }
+      if (_remaining <= 1) {
+        timer.cancel();
+        _decide(liked: false, timedOut: true);
+        return;
+      }
+      setState(() => _remaining -= 1);
+    });
+  }
+
+  void _decide({required bool liked, bool timedOut = false}) {
+    if (_stage != RecommendStage.swiping || _index >= _candidates.length) return;
+    _timer?.cancel();
     var seconds = DateTime.now().difference(_shownAt).inMilliseconds / 1000;
-    if (seconds >= 20) seconds = 0;
-    final scored = ScoredMenu(candidates[_index], seconds);
+    if (timedOut || seconds >= 10) {
+      seconds = 10;
+      liked = false;
+    }
+    final scored = ScoredMenu(_candidates[_index], seconds);
     setState(() {
       liked ? _yes.add(scored) : _no.add(scored);
       _index += 1;
-      _shownAt = DateTime.now();
+      if (_index >= _candidates.length) {
+        _stage = RecommendStage.result;
+      }
     });
+    if (_stage == RecommendStage.swiping) {
+      _startCardTimer();
+    }
   }
 
   void _buildTournament() {
-    if (_yes.length < 2) {
-      _showSnack('오른쪽으로 고른 메뉴가 2개 이상 필요해요.');
+    if (_yes.isEmpty) {
+      _showSnack('좋아요를 받은 메뉴가 없어요. 조건을 다시 골라볼까요?');
+      return;
+    }
+    if (_yes.length == 1) {
+      _showWinner(_yes.first);
       return;
     }
     setState(() {
       _tournament = Tournament.fromSwipeResults(_yes, _no, _random);
+      _stage = RecommendStage.tournament;
     });
+  }
+
+  void _showWinner(ScoredMenu winner) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => WinnerDialog(
+        winner: winner,
+        onConfirm: () {
+          Navigator.of(context).pop();
+          widget.onMealConfirmed(winner.menu.name);
+          _resetFlow();
+        },
+      ),
+    );
   }
 
   void _showSnack(String text) {
@@ -377,128 +548,68 @@ class _RecommendTabState extends State<RecommendTab> {
 
   @override
   Widget build(BuildContext context) {
-    final candidates = _candidates;
-    final body = _tournament == null
-        ? _buildSwipeBody(candidates)
-        : TournamentView(
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      child: switch (_stage) {
+        RecommendStage.idle => _IdleStep(onStart: _start),
+        RecommendStage.price => _PriceStep(
+            price: _price,
+            onChanged: (value) => setState(() => _price = value),
+            onNext: _choosePrice,
+            onBack: _resetFlow,
+            nextLabel: '카테고리 고르기',
+          ),
+        RecommendStage.large => _MultiChoiceStep(
+            title: '어떤 종류가 끌려요?',
+            subtitle: '한식과 중식처럼 여러 개를 함께 고를 수 있어요.',
+            options: largeCategories,
+            selected: _large,
+            onToggle: _toggleLarge,
+            onNext: _confirmLarge,
+            onBack: () => setState(() => _stage = RecommendStage.price),
+          ),
+        RecommendStage.medium => _MultiChoiceStep(
+            title: '오늘의 형태는?',
+            subtitle: '밥, 면, 육류, 기타도 여러 개를 함께 고를 수 있어요.',
+            options: mediumCategories,
+            selected: _medium,
+            onToggle: _toggleMedium,
+            onNext: _confirmMedium,
+            onBack: () => setState(() => _stage = RecommendStage.large),
+          ),
+        RecommendStage.swiping => _SwipeStep(
+            candidates: _candidates,
+            index: _index,
+            remaining: _remaining,
+            targetPrice: _price,
+            recentWins: widget.recentWins,
+            onLike: () => _decide(liked: true),
+            onDislike: () => _decide(liked: false),
+          ),
+        RecommendStage.result => _ResultStep(
+            candidatesCount: _candidates.length,
+            yesCount: _yes.length,
+            noCount: _no.length,
+            onTournament: _buildTournament,
+            onRestart: _start,
+          ),
+        RecommendStage.tournament => TournamentView(
             tournament: _tournament!,
-            onFinished: (winner) {
-              showDialog<void>(
-                context: context,
-                builder: (context) => WinnerDialog(
-                  winner: winner,
-                  onConfirm: () {
-                    Navigator.of(context).pop();
-                    widget.onMealConfirmed(winner.menu.name);
-                    setState(() => _tournament = null);
-                  },
-                ),
-              );
-            },
-          );
-
-    return Column(
-      children: [
-        FilterPanel(
-          title: '오늘 뭐 먹지?',
-          price: _price,
-          selectedLarge: _large,
-          selectedMedium: _medium,
-          onPriceChanged: _changePrice,
-          onLargeChanged: _changeLarge,
-          onMediumChanged: _changeMedium,
-        ),
-        Expanded(child: body),
-      ],
-    );
-  }
-
-  Widget _buildSwipeBody(List<MenuItem> candidates) {
-    if (candidates.isEmpty) {
-      return const EmptyState(text: '조건에 맞는 메뉴가 없어요.\n예산이나 필터를 조금 풀어볼까요?');
-    }
-    if (_index >= candidates.length) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '선택 완료',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              const SizedBox(height: 10),
-                Text('좋아요 ${_yes.length}개 · 패스 ${_no.length}개'),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _buildTournament,
-                icon: const Icon(Icons.sports_mma),
-                label: const Text('토너먼트 시작'),
-              ),
-              TextButton(
-                onPressed: _startSwipe,
-                child: const Text('다시 고르기'),
-              ),
-            ],
+            onFinished: _showWinner,
           ),
-        ),
-      );
-    }
-
-    final menu = candidates[_index];
-    return Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onHorizontalDragEnd: (details) {
-                final velocity = details.primaryVelocity ?? 0;
-                if (velocity > 100) _swipe(true);
-                if (velocity < -100) _swipe(false);
-              },
-              child: MenuCard(
-                menu: menu,
-                badge: recentWinBadge(menu.name, widget.recentWins),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _swipe(false),
-                  icon: const Icon(Icons.close),
-                  label: const Text('패스'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _swipe(true),
-                  icon: const Icon(Icons.favorite),
-                  label: const Text('좋아요'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text('${_index + 1} / ${candidates.length}'),
-        ],
-      ),
+      },
     );
   }
 }
+
+enum RandomStage { price, result }
 
 class RandomTab extends StatefulWidget {
   const RandomTab({
     required this.menus,
     required this.defaultPrice,
     required this.excludedTags,
+    required this.onDefaultPriceChanged,
     required this.onMealConfirmed,
     super.key,
   });
@@ -506,6 +617,7 @@ class RandomTab extends StatefulWidget {
   final List<MenuItem> menus;
   final int defaultPrice;
   final Set<String> excludedTags;
+  final ValueChanged<int> onDefaultPriceChanged;
   final ValueChanged<String> onMealConfirmed;
 
   @override
@@ -514,11 +626,10 @@ class RandomTab extends StatefulWidget {
 
 class _RandomTabState extends State<RandomTab> {
   final Random _random = Random();
-  Set<String> _large = {};
-  Set<String> _medium = {};
+  RandomStage _stage = RandomStage.price;
   int _price = 12000;
-  MenuItem? _result;
-  bool _rolling = false;
+  List<MenuItem> _candidates = [];
+  ScoredMenu? _winner;
 
   @override
   void initState() {
@@ -526,75 +637,832 @@ class _RandomTabState extends State<RandomTab> {
     _price = widget.defaultPrice;
   }
 
-  Future<void> _roll() async {
+  void _reset() {
+    setState(() {
+      _stage = RandomStage.price;
+      _price = widget.defaultPrice;
+      _candidates = [];
+      _winner = null;
+    });
+  }
+
+  void _pick() {
+    widget.onDefaultPriceChanged(_price);
     final candidates = filterMenus(
       widget.menus,
-      maxPrice: _price,
+      targetPrice: _price,
       excludedTags: widget.excludedTags,
-      large: _large,
-      medium: _medium,
+      large: const <String>{},
+      medium: const <String>{},
     );
-    if (candidates.isEmpty) return;
-    setState(() => _rolling = true);
-    for (var i = 0; i < 14; i += 1) {
-      await Future<void>.delayed(const Duration(milliseconds: 95));
-      if (!mounted) return;
-      setState(() => _result = candidates[_random.nextInt(candidates.length)]);
-    }
-    setState(() => _rolling = false);
+    setState(() {
+      _candidates = candidates;
+      _winner = candidates.isEmpty
+          ? null
+          : ScoredMenu(candidates[_random.nextInt(candidates.length)], 0);
+      _stage = RandomStage.result;
+    });
+  }
+
+  void _reroll() {
+    if (_candidates.isEmpty) return;
+    setState(() {
+      _winner = ScoredMenu(
+        _candidates[_random.nextInt(_candidates.length)],
+        0,
+      );
+    });
+  }
+
+  void _confirm() {
+    final selected = _winner;
+    if (selected == null) return;
+    widget.onMealConfirmed(selected.menu.name);
+    _reset();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FilterPanel(
-          title: '에라 모르겠다',
-          price: _price,
-          selectedLarge: _large,
-          selectedMedium: _medium,
-          onPriceChanged: (price) => setState(() => _price = price),
-          onLargeChanged: (items) => setState(() => _large = items),
-          onMediumChanged: (items) => setState(() => _medium = items),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              children: [
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 160),
-                    child: _result == null
-                        ? const EmptyState(text: '버튼 하나로 오늘 메뉴를 정해요.')
-                        : MenuCard(
-                            key: ValueKey(_result!.id),
-                            menu: _result!,
-                            badge: _rolling ? '르르륵...' : null,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      child: switch (_stage) {
+        RandomStage.price => _PriceStep(
+            price: _price,
+            title: '순수 랜덤',
+            subtitle: '가격대만 고르면 못먹는 음식 태그를 제외하고 바로 하나 뽑아요.',
+            onChanged: (value) => setState(() => _price = value),
+            onNext: _pick,
+            onBack: _reset,
+            nextLabel: '랜덤 추천 받기',
+          ),
+        RandomStage.result => _RandomResultStep(
+            winner: _winner,
+            candidateCount: _candidates.length,
+            targetPrice: _price,
+            onReroll: _reroll,
+            onRestart: _reset,
+            onConfirm: _winner == null ? null : _confirm,
+          ),
+      },
+    );
+  }
+}
+
+class _IdleStep extends StatelessWidget {
+  const _IdleStep({required this.onStart});
+
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          Text(
+            '3분세끼',
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+          ),
+          const SizedBox(height: 10),
+          const Text('가격대와 카테고리를 고른 뒤, 10초 안에 메뉴를 넘겨보세요.'),
+          const SizedBox(height: 28),
+          FilledButton.icon(
+            onPressed: onStart,
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('추천 시작'),
+          ),
+          const Spacer(),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriceStep extends StatelessWidget {
+  const _PriceStep({
+    required this.price,
+    required this.onChanged,
+    required this.onNext,
+    required this.onBack,
+    this.title = '원하는 가격대',
+    this.subtitle = '선택한 가격대와 그보다 저렴한 메뉴를 보여드려요.',
+    this.nextLabel = '다음',
+  });
+
+  final int price;
+  final ValueChanged<int> onChanged;
+  final VoidCallback onNext;
+  final VoidCallback onBack;
+  final String title;
+  final String subtitle;
+  final String nextLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _StepHeader(
+            title: title,
+            subtitle: subtitle,
+            onBack: onBack,
+          ),
+          const Spacer(),
+          Text(
+            '평균 ${money(price)}',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+          ),
+          Slider(
+            min: 5000,
+            max: 30000,
+            divisions: 25,
+            value: price.toDouble(),
+            label: money(price),
+            onChanged: (value) => onChanged(value.round()),
+          ),
+          const Spacer(),
+          FilledButton(
+            onPressed: onNext,
+            child: Text(nextLabel),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MultiChoiceStep extends StatelessWidget {
+  const _MultiChoiceStep({
+    required this.title,
+    required this.subtitle,
+    required this.options,
+    required this.selected,
+    required this.onToggle,
+    required this.onNext,
+    required this.onBack,
+  });
+
+  final String title;
+  final String subtitle;
+  final List<String> options;
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+  final VoidCallback onNext;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _StepHeader(title: title, subtitle: subtitle, onBack: onBack),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.separated(
+              itemCount: options.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final option = options[index];
+                final isSelected = selected.contains(option);
+                return InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => onToggle(option),
+                  child: Container(
+                    height: 86,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isSelected
+                            ? appPrimary
+                            : appLine,
+                        width: isSelected ? 2 : 1,
+                      ),
+                      color: isSelected
+                          ? const Color(0xfffff3ed)
+                          : appSoftSurface,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            option,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
                           ),
+                        ),
+                        Icon(
+                          isSelected
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          color: isSelected ? appPrimary : appMutedText,
+                        ),
+                      ],
+                    ),
                   ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: selected.isEmpty ? null : onNext,
+            child: const Text('다음'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SwipeStep extends StatefulWidget {
+  const _SwipeStep({
+    required this.candidates,
+    required this.index,
+    required this.remaining,
+    required this.targetPrice,
+    required this.recentWins,
+    required this.onLike,
+    required this.onDislike,
+  });
+
+  final List<MenuItem> candidates;
+  final int index;
+  final int remaining;
+  final int targetPrice;
+  final List<String> recentWins;
+  final VoidCallback onLike;
+  final VoidCallback onDislike;
+
+  @override
+  State<_SwipeStep> createState() => _SwipeStepState();
+}
+
+class _SwipeStepState extends State<_SwipeStep> {
+  double _dragDx = 0;
+  bool _isExiting = false;
+  int _exitDirection = 0;
+  bool _showHint = true;
+
+  @override
+  void didUpdateWidget(covariant _SwipeStep oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      _dragDx = 0;
+      _isExiting = false;
+      _exitDirection = 0;
+      _showHint = widget.index == 0;
+    }
+  }
+
+  void _finishSwipe(bool liked) {
+    if (_isExiting) return;
+    setState(() {
+      _isExiting = true;
+      _exitDirection = liked ? 1 : -1;
+      _showHint = false;
+      _dragDx = _exitDirection * (MediaQuery.sizeOf(context).width + 160);
+    });
+    Future<void>.delayed(const Duration(milliseconds: 260), () {
+      if (!mounted) return;
+      liked ? widget.onLike() : widget.onDislike();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final menu = widget.candidates[widget.index];
+    final width = MediaQuery.sizeOf(context).width;
+    final normalizedDrag = (_dragDx / width).clamp(-1.0, 1.0).toDouble();
+    final rotation = normalizedDrag * 0.11;
+    final overlayOpacity = normalizedDrag.abs().clamp(0.0, 0.85).toDouble();
+    final isLikeDirection = normalizedDrag > 0;
+    return Padding(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: LinearProgressIndicator(
+                  value: widget.remaining / 10,
+                  minHeight: 8,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 14),
-                FilledButton.icon(
-                  onPressed: _rolling ? null : _roll,
-                  icon: const Icon(Icons.casino),
-                  label: Text(_result == null ? '랜덤 추천' : '다시 돌리기'),
+              ),
+              const SizedBox(width: 12),
+              Text('${widget.remaining}초'),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            '선택 가격 ${money(widget.targetPrice)} · ${money(priceUpperBound(widget.targetPrice))} 이하',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: GestureDetector(
+              onHorizontalDragStart: (_) {
+                if (_isExiting) return;
+                setState(() {
+                  _dragDx = 0;
+                  _showHint = false;
+                });
+              },
+              onHorizontalDragUpdate: (details) {
+                if (_isExiting) return;
+                setState(() => _dragDx += details.delta.dx);
+              },
+              onHorizontalDragEnd: (details) {
+                if (_isExiting) return;
+                final velocity = details.primaryVelocity ?? 0;
+                if (_dragDx > 48 || velocity > 180) {
+                  _finishSwipe(true);
+                } else if (_dragDx < -48 || velocity < -180) {
+                  _finishSwipe(false);
+                } else {
+                  setState(() => _dragDx = 0);
+                }
+              },
+              child: AnimatedContainer(
+                duration: _isExiting
+                    ? const Duration(milliseconds: 250)
+                    : const Duration(milliseconds: 180),
+                curve: _isExiting ? Curves.easeInOutCubic : Curves.easeOutCubic,
+                transformAlignment: Alignment.center,
+                transform: Matrix4.identity()
+                  ..setTranslationRaw(_dragDx, 0, 0)
+                  ..rotateZ(rotation),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    MenuCard(
+                      menu: menu,
+                      badge: recentWinBadge(menu.name, widget.recentWins),
+                    ),
+                    Positioned(
+                      top: 22,
+                      left: isLikeDirection ? null : 22,
+                      right: isLikeDirection ? 22 : null,
+                      child: Opacity(
+                        opacity: overlayOpacity,
+                        child: _SwipeStamp(
+                          text: isLikeDirection ? '좋아요' : '싫어요',
+                          color: isLikeDirection
+                              ? appLike
+                              : appDislike,
+                          icon: isLikeDirection
+                              ? Icons.favorite
+                              : Icons.close,
+                        ),
+                      ),
+                    ),
+                    if (_showHint)
+                      Positioned(
+                        left: 18,
+                        right: 18,
+                        bottom: 18,
+                        child: _SwipeHint(),
+                      ),
+                  ],
                 ),
-                if (_result != null) ...[
-                  const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    onPressed: _rolling
-                        ? null
-                        : () => widget.onMealConfirmed(_result!.name),
-                    icon: const Icon(Icons.check),
-                    label: const Text('확정'),
-                  ),
-                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${widget.index + 1} / ${widget.candidates.length}',
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SwipeHint extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: appLine),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.arrow_back, color: appMutedText, size: 18),
+                SizedBox(width: 6),
+                Text('싫어요', style: TextStyle(color: appText)),
               ],
             ),
+            Row(
+              children: [
+                Text('좋아요', style: TextStyle(color: appText)),
+                SizedBox(width: 6),
+                Icon(Icons.arrow_forward, color: appMutedText, size: 18),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SwipeStamp extends StatelessWidget {
+  const _SwipeStamp({
+    required this.text,
+    required this.color,
+    required this.icon,
+  });
+
+  final String text;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ResultStep extends StatelessWidget {
+  const _ResultStep({
+    required this.candidatesCount,
+    required this.yesCount,
+    required this.noCount,
+    required this.onTournament,
+    required this.onRestart,
+  });
+
+  final int candidatesCount;
+  final int yesCount;
+  final int noCount;
+  final VoidCallback onTournament;
+  final VoidCallback onRestart;
+
+  @override
+  Widget build(BuildContext context) {
+    final noCandidate = candidatesCount == 0;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              noCandidate ? '후보가 없어요' : '선택 완료',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              noCandidate
+                  ? '가격대나 못먹는 음식 태그를 조금 풀어보세요.'
+                  : '좋아요 $yesCount개 · 탈락 $noCount개',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            if (!noCandidate)
+              FilledButton.icon(
+                onPressed: onTournament,
+                icon: const Icon(Icons.emoji_events),
+                label: const Text('토너먼트 시작'),
+              ),
+            TextButton(
+              onPressed: onRestart,
+              child: const Text('다시 고르기'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RandomResultStep extends StatelessWidget {
+  const _RandomResultStep({
+    required this.winner,
+    required this.candidateCount,
+    required this.targetPrice,
+    required this.onReroll,
+    required this.onRestart,
+    required this.onConfirm,
+  });
+
+  final ScoredMenu? winner;
+  final int candidateCount;
+  final int targetPrice;
+  final VoidCallback onReroll;
+  final VoidCallback onRestart;
+  final VoidCallback? onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = winner;
+    if (selected == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '랜덤 후보가 없어요',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '${money(priceUpperBound(targetPrice))} 이하에서 못먹는 음식 필터를 적용했더니 남는 메뉴가 없어요.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: onRestart,
+                child: const Text('가격 다시 고르기'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _StepHeader(
+            title: '랜덤 추천',
+            subtitle:
+                '${money(priceUpperBound(targetPrice))} 이하 · 후보 $candidateCount개 중 하나',
+            onBack: onRestart,
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.97, end: 1).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    ),
+                    child: child,
+                  ),
+                );
+              },
+              child: MenuCard(
+                key: ValueKey(selected.menu.id),
+                menu: selected.menu,
+                badge: '순수 랜덤',
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          FilledButton.icon(
+            onPressed: onConfirm,
+            icon: const Icon(Icons.check),
+            label: const Text('식사 완료 기록하기'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: onReroll,
+            icon: const Icon(Icons.shuffle),
+            label: const Text('다시 랜덤'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepHeader extends StatelessWidget {
+  const _StepHeader({
+    required this.title,
+    required this.subtitle,
+    required this.onBack,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IconButton(
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back),
+          tooltip: '뒤로',
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(subtitle),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class TournamentView extends StatefulWidget {
+  const TournamentView({
+    required this.tournament,
+    required this.onFinished,
+    super.key,
+  });
+
+  final Tournament tournament;
+  final ValueChanged<ScoredMenu> onFinished;
+
+  @override
+  State<TournamentView> createState() => _TournamentViewState();
+}
+
+class _TournamentViewState extends State<TournamentView> {
+  late List<ScoredMenu> _round;
+  late List<ScoredMenu> _byeSeeds;
+  final List<ScoredMenu> _winners = [];
+  final List<_TournamentLoser> _currentRoundLosers = [];
+  int _matchIndex = 0;
+  DateTime _matchStartedAt = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _round = widget.tournament.initialRound;
+    _byeSeeds = widget.tournament.byeSeeds;
+    _matchStartedAt = DateTime.now();
+  }
+
+  void _pick(ScoredMenu menu) {
+    final left = _round[_matchIndex];
+    final right = _round[_matchIndex + 1];
+    final loser = menu.menu.id == left.menu.id ? right : left;
+    final dwellSeconds =
+        DateTime.now().difference(_matchStartedAt).inMilliseconds / 1000;
+    _currentRoundLosers.add(_TournamentLoser(loser, dwellSeconds));
+    _winners.add(menu);
+    if (_matchIndex + 2 >= _round.length) {
+      final nextRound = [..._winners, ..._byeSeeds];
+      final revivalCount = switch (nextRound.length) {
+        3 => 1,
+        6 => 2,
+        _ => 0,
+      };
+      if (revivalCount > 0) {
+        final revivals = [..._currentRoundLosers]
+          ..sort((a, b) => b.dwellSeconds.compareTo(a.dwellSeconds));
+        nextRound.addAll(
+          revivals.take(revivalCount).map((item) => item.menu.asWildcard()),
+        );
+      }
+      nextRound.shuffle(Random());
+      if (nextRound.length == 1) {
+        widget.onFinished(nextRound.first);
+        return;
+      }
+      setState(() {
+        _round = nextRound;
+        _byeSeeds = [];
+        _winners.clear();
+        _currentRoundLosers.clear();
+        _matchIndex = 0;
+        _matchStartedAt = DateTime.now();
+      });
+      return;
+    }
+    setState(() {
+      _matchIndex += 2;
+      _matchStartedAt = DateTime.now();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final left = _round[_matchIndex];
+    final right = _round[_matchIndex + 1];
+    final byeText = _byeSeeds.isEmpty ? '' : ' · 부전승 ${_byeSeeds.length}개';
+    return Padding(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '${_round.length + _byeSeeds.length}강 · ${(_matchIndex ~/ 2) + 1}경기$byeText',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(child: _TournamentChoice(menu: left, onTap: _pick)),
+                const SizedBox(width: 10),
+                Expanded(child: _TournamentChoice(menu: right, onTap: _pick)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TournamentChoice extends StatelessWidget {
+  const _TournamentChoice({required this.menu, required this.onTap});
+
+  final ScoredMenu menu;
+  final ValueChanged<ScoredMenu> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => onTap(menu),
+      child: MenuCard(
+        menu: menu.menu,
+        compact: true,
+        badge: menu.isWildcard ? '와일드카드' : null,
+      ),
     );
   }
 }
@@ -612,7 +1480,7 @@ class HistoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (records.isEmpty) {
-      return const EmptyState(text: '아직 기록이 없어요.\n먹은 메뉴를 확정하면 여기에 쌓입니다.');
+      return const EmptyState(text: '아직 기록이 없어요.\n우승 메뉴를 기록하면 여기에 쌓입니다.');
     }
     return ListView.separated(
       padding: const EdgeInsets.all(16),
@@ -662,29 +1530,17 @@ class SettingsTab extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       children: [
         Text(
-          '기피 태그',
+          '못먹는 음식',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
               ),
         ),
         const SizedBox(height: 8),
-        const Text('지금은 UI와 저장 흐름을 먼저 만들었습니다. 메뉴별 태그가 채워지면 필터에 바로 반영됩니다.'),
+        const Text('처음 선택한 태그는 언제든 여기서 바꿀 수 있어요.'),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final tag in dislikeTags)
-              FilterChip(
-                label: Text(tag),
-                selected: excludedTags.contains(tag),
-                onSelected: (selected) {
-                  final next = {...excludedTags};
-                  selected ? next.add(tag) : next.remove(tag);
-                  onExcludedTagsChanged(next);
-                },
-              ),
-          ],
+        TagSelector(
+          selectedTags: excludedTags,
+          onChanged: onExcludedTagsChanged,
         ),
         const SizedBox(height: 30),
         OutlinedButton.icon(
@@ -719,187 +1575,155 @@ class SettingsTab extends StatelessWidget {
   }
 }
 
-class FilterPanel extends StatelessWidget {
-  const FilterPanel({
-    required this.title,
-    required this.price,
-    required this.selectedLarge,
-    required this.selectedMedium,
-    required this.onPriceChanged,
-    required this.onLargeChanged,
-    required this.onMediumChanged,
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({
+    required this.excludedTags,
+    required this.onDone,
     super.key,
   });
 
-  final String title;
-  final int price;
-  final Set<String> selectedLarge;
-  final Set<String> selectedMedium;
-  final ValueChanged<int> onPriceChanged;
-  final ValueChanged<Set<String>> onLargeChanged;
-  final ValueChanged<Set<String>> onMediumChanged;
+  final Set<String> excludedTags;
+  final ValueChanged<Set<String>> onDone;
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  late Set<String> _selectedTags;
+  bool _showIntro = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTags = {...widget.excludedTags};
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: _showIntro
+                ? Column(
+                    key: const ValueKey('intro'),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Spacer(),
+                      Text(
+                        '3분세끼',
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text('결정하기 귀찮은 한 끼를 빠르게 좁혀드려요.'),
+                      const SizedBox(height: 28),
+                      const _IntroPoint(
+                        icon: Icons.tune,
+                        title: '가격과 카테고리 선택',
+                        body: '선택한 가격대 이하의 메뉴에서 한식/중식, 밥/면/기타 등을 고릅니다.',
+                      ),
+                      const _IntroPoint(
+                        icon: Icons.swipe,
+                        title: '10초 메뉴 카드',
+                        body: '오른쪽은 좋아요, 왼쪽은 싫어요예요. 첫 카드에서 한 번 더 알려드릴게요.',
+                      ),
+                      const _IntroPoint(
+                        icon: Icons.emoji_events,
+                        title: '토너먼트 결정',
+                        body: '좋아요 메뉴끼리 붙이고, 애매한 숫자는 와일드카드와 부전승으로 맞춥니다.',
+                      ),
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: () => setState(() => _showIntro = false),
+                        child: const Text('못먹는 음식 설정하기'),
+                      ),
+                    ],
+                  )
+                : Column(
+                    key: const ValueKey('tags'),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '못먹는 음식',
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('선택한 태그가 들어간 메뉴는 추천에서 제외할게요. 나중에 설정에서 바꿀 수 있어요.'),
+                      const SizedBox(height: 22),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: TagSelector(
+                            selectedTags: _selectedTags,
+                            onChanged: (tags) => setState(() => _selectedTags = tags),
+                          ),
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => setState(() => _showIntro = true),
+                              child: const Text('이전'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () => widget.onDone(_selectedTags),
+                              child: const Text('추천 시작하기'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                Text('${money(price)} 이하'),
-              ],
-            ),
-            Slider(
-              min: 5000,
-              max: 30000,
-              divisions: 25,
-              value: price.toDouble(),
-              label: money(price),
-              onChanged: (value) => onPriceChanged(value.round()),
-            ),
-            _ChipRow(
-              items: largeCategories,
-              selected: selectedLarge,
-              onChanged: onLargeChanged,
-            ),
-            const SizedBox(height: 6),
-            _ChipRow(
-              items: mediumCategories,
-              selected: selectedMedium,
-              onChanged: onMediumChanged,
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ChipRow extends StatelessWidget {
-  const _ChipRow({
-    required this.items,
-    required this.selected,
-    required this.onChanged,
+class _IntroPoint extends StatelessWidget {
+  const _IntroPoint({
+    required this.icon,
+    required this.title,
+    required this.body,
   });
 
-  final List<String> items;
-  final Set<String> selected;
-  final ValueChanged<Set<String>> onChanged;
+  final IconData icon;
+  final String title;
+  final String body;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final item in items)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: FilterChip(
-                label: Text(item),
-                selected: selected.contains(item),
-                onSelected: (isSelected) {
-                  final next = {...selected};
-                  isSelected ? next.add(item) : next.remove(item);
-                  onChanged(next);
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class TournamentView extends StatefulWidget {
-  const TournamentView({
-    required this.tournament,
-    required this.onFinished,
-    super.key,
-  });
-
-  final Tournament tournament;
-  final ValueChanged<ScoredMenu> onFinished;
-
-  @override
-  State<TournamentView> createState() => _TournamentViewState();
-}
-
-class _TournamentViewState extends State<TournamentView> {
-  late List<ScoredMenu> _round;
-  late List<ScoredMenu> _byeSeeds;
-  final List<ScoredMenu> _winners = [];
-  int _matchIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _round = widget.tournament.initialRound;
-    _byeSeeds = widget.tournament.byeSeeds;
-  }
-
-  void _pick(ScoredMenu menu) {
-    _winners.add(menu);
-    if (_matchIndex + 2 >= _round.length) {
-      final nextRound = [..._winners, ..._byeSeeds];
-      if (_winners.length == 1) {
-        if (_byeSeeds.isEmpty) {
-          widget.onFinished(_winners.first);
-        } else {
-          setState(() {
-            _round = nextRound;
-            _byeSeeds = [];
-            _winners.clear();
-            _matchIndex = 0;
-          });
-        }
-      } else {
-        setState(() {
-          _round = nextRound;
-          _byeSeeds = [];
-          _winners.clear();
-          _matchIndex = 0;
-        });
-      }
-      return;
-    }
-    setState(() => _matchIndex += 2);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final left = _round[_matchIndex];
-    final right = _round[_matchIndex + 1];
     return Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${_round.length}강 · ${(_matchIndex ~/ 2) + 1}경기',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
+          Icon(icon, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _TournamentChoice(menu: left, onTap: _pick)),
-                const SizedBox(width: 10),
-                Expanded(child: _TournamentChoice(menu: right, onTap: _pick)),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(body),
               ],
             ),
           ),
@@ -909,22 +1733,33 @@ class _TournamentViewState extends State<TournamentView> {
   }
 }
 
-class _TournamentChoice extends StatelessWidget {
-  const _TournamentChoice({required this.menu, required this.onTap});
+class TagSelector extends StatelessWidget {
+  const TagSelector({
+    required this.selectedTags,
+    required this.onChanged,
+    super.key,
+  });
 
-  final ScoredMenu menu;
-  final ValueChanged<ScoredMenu> onTap;
+  final Set<String> selectedTags;
+  final ValueChanged<Set<String>> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () => onTap(menu),
-      child: MenuCard(
-        menu: menu.menu,
-        compact: true,
-        badge: menu.isWildcard ? '와일드카드' : null,
-      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final tag in dislikeTags)
+          FilterChip(
+            label: Text(tag),
+            selected: selectedTags.contains(tag),
+            onSelected: (selected) {
+              final next = {...selectedTags};
+              selected ? next.add(tag) : next.remove(tag);
+              onChanged(next);
+            },
+          ),
+      ],
     );
   }
 }
@@ -949,12 +1784,17 @@ class MenuCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        gradient: LinearGradient(colors: colors),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ),
+        border: Border.all(color: appLine),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.07),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -964,7 +1804,8 @@ class MenuCard extends StatelessWidget {
           if (badge != null)
             Chip(
               label: Text(badge!),
-              backgroundColor: Colors.white.withOpacity(0.88),
+              backgroundColor: Colors.white.withValues(alpha: 0.9),
+              side: const BorderSide(color: appLine),
             ),
           const Spacer(),
           Text(
@@ -972,22 +1813,27 @@ class MenuCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: appText,
                   fontWeight: FontWeight.w900,
                   fontSize: compact ? 24 : 34,
                 ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            '${menu.categoryLarge} · ${menu.categoryMedium}',
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _MenuPill(text: menu.categoryLarge),
+              _MenuPill(text: menu.categoryMedium),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           Text(
-            money(menu.basePrice),
+            '평균 ${money(menu.basePrice)}',
             style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+              color: appPrimary,
+              fontWeight: FontWeight.w900,
+              fontSize: 17,
             ),
           ),
         ],
@@ -996,66 +1842,27 @@ class MenuCard extends StatelessWidget {
   }
 }
 
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({
-    required this.initialPrice,
-    required this.onDone,
-    super.key,
-  });
+class _MenuPill extends StatelessWidget {
+  const _MenuPill({required this.text});
 
-  final int initialPrice;
-  final ValueChanged<int> onDone;
-
-  @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  late int _price;
-
-  @override
-  void initState() {
-    super.initState();
-    _price = widget.initialPrice;
-  }
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              Text(
-                '3분세끼',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
-              ),
-              const SizedBox(height: 10),
-              const Text('오늘의 결정 피로를 조금 줄여볼게요.'),
-              const SizedBox(height: 44),
-              Text(
-                '기본 예산 ${money(_price)}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              Slider(
-                min: 5000,
-                max: 30000,
-                divisions: 25,
-                value: _price.toDouble(),
-                label: money(_price),
-                onChanged: (value) => setState(() => _price = value.round()),
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: () => widget.onDone(_price),
-                child: const Text('3분세끼 시작하기'),
-              ),
-            ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: appLine),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: appMutedText,
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
           ),
         ),
       ),
@@ -1088,7 +1895,11 @@ class WinnerDialog extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 8),
-          Text('${winner.menu.categoryLarge} · ${money(winner.menu.basePrice)}'),
+          Text('${winner.menu.categoryLarge} · ${winner.menu.categoryMedium} · ${money(winner.menu.basePrice)}'),
+          if (winner.isWildcard) ...[
+            const SizedBox(height: 8),
+            const Text('오래 고민하다 탈락했지만 다시 살아난 와일드카드였어요.'),
+          ],
         ],
       ),
       actions: [
@@ -1191,11 +2002,14 @@ class AdPlaceholder extends StatelessWidget {
     return Container(
       height: 44,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+      decoration: const BoxDecoration(
+        color: appSoftSurface,
+        border: Border(top: BorderSide(color: appLine)),
       ),
-      child: const Text('AdMob 배너 영역'),
+      child: const Text(
+        'AdMob 배너 영역',
+        style: TextStyle(color: appMutedText, fontSize: 12),
+      ),
     );
   }
 }
@@ -1244,6 +2058,13 @@ class ScoredMenu {
   }
 }
 
+class _TournamentLoser {
+  const _TournamentLoser(this.menu, this.dwellSeconds);
+
+  final ScoredMenu menu;
+  final double dwellSeconds;
+}
+
 class Tournament {
   const Tournament({
     required this.initialRound,
@@ -1257,32 +2078,25 @@ class Tournament {
   ) {
     final sortedYes = [...yes]
       ..sort((a, b) => b.dwellSeconds.compareTo(a.dwellSeconds));
-    final tournamentYes = sortedYes.take(16).toList();
     final sortedNo = [...no]
       ..sort((a, b) => b.dwellSeconds.compareTo(a.dwellSeconds));
-    final n = tournamentYes.length;
-    final target = (n <= 8) ? 8 : 16;
+    final entrants = sortedYes.take(64).toList();
+    final target = targetTournamentSize(entrants.length);
+    final wildcardsNeeded = max(0, target - entrants.length);
+    entrants.addAll(sortedNo.take(wildcardsNeeded).map((item) => item.asWildcard()));
 
-    if ((n == 6 || n == 7 || n == 14 || n == 15) && sortedNo.isNotEmpty) {
-      final needed = min(target - n, sortedNo.length);
-      final merged = [
-        ...tournamentYes,
-        ...sortedNo.take(needed).map((item) => item.asWildcard()),
-      ]..shuffle(random);
-      return Tournament(initialRound: _ensureEven(merged));
+    if (isPlayableTournamentSize(entrants.length)) {
+      entrants.shuffle(random);
+      return Tournament(initialRound: entrants);
     }
 
-    final power = _largestPowerOfTwoAtMost(n);
-    if (power == n) {
-      final seeded = [...tournamentYes]..shuffle(random);
-      return Tournament(initialRound: _ensureEven(seeded));
-    }
-
-    final eliminate = n - power;
-    final low = tournamentYes.reversed.take(eliminate * 2).toList()
-      ..shuffle(random);
-    final byes = tournamentYes.take(max(0, n - eliminate * 2)).toList();
-    return Tournament(initialRound: _ensureEven(low), byeSeeds: byes);
+    final power = largestPowerOfTwoAtMost(entrants.length);
+    final eliminate = entrants.length - power;
+    final sortedEntrants = [...entrants]
+      ..sort((a, b) => a.dwellSeconds.compareTo(b.dwellSeconds));
+    final playIn = sortedEntrants.take(eliminate * 2).toList()..shuffle(random);
+    final byes = sortedEntrants.skip(eliminate * 2).toList()..shuffle(random);
+    return Tournament(initialRound: playIn, byeSeeds: byes);
   }
 
   final List<ScoredMenu> initialRound;
@@ -1332,18 +2146,46 @@ class MealRecord {
 
 List<MenuItem> filterMenus(
   List<MenuItem> menus, {
-  required int maxPrice,
+  required int targetPrice,
   required Set<String> excludedTags,
   required Set<String> large,
   required Set<String> medium,
 }) {
+  final upperBound = priceUpperBound(targetPrice);
   return menus.where((menu) {
-    if (menu.basePrice > maxPrice) return false;
+    if (menu.basePrice > upperBound) return false;
     if (large.isNotEmpty && !large.contains(menu.categoryLarge)) return false;
     if (medium.isNotEmpty && !medium.contains(menu.categoryMedium)) return false;
     if (menu.tags.any(excludedTags.contains)) return false;
     return true;
   }).toList();
+}
+
+int priceUpperBound(int targetPrice) => (targetPrice * 1.1).round();
+
+int targetTournamentSize(int count) {
+  const playableSizes = [4, 6, 8, 12, 16, 24, 32, 48, 64];
+  for (final size in playableSizes) {
+    if (count <= size) return size;
+  }
+  return 64;
+}
+
+bool isPowerOfTwo(int value) {
+  return value > 1 && (value & (value - 1)) == 0;
+}
+
+bool isPlayableTournamentSize(int value) {
+  const playableSizes = {4, 6, 8, 12, 16, 24, 32, 48, 64};
+  return playableSizes.contains(value);
+}
+
+int largestPowerOfTwoAtMost(int value) {
+  var power = 1;
+  while (power * 2 <= value) {
+    power *= 2;
+  }
+  return power;
 }
 
 String mealPeriodLabel(DateTime time) {
@@ -1369,7 +2211,7 @@ String money(int value) {
       buffer.write(',');
     }
   }
-  return '${buffer}원';
+  return '$buffer원';
 }
 
 String? recentWinBadge(String name, List<String> wins) {
@@ -1380,25 +2222,12 @@ String? recentWinBadge(String name, List<String> wins) {
 
 List<Color> cardColors(int id) {
   const palettes = [
-    [Color(0xfff05a28), Color(0xfff7b733)],
-    [Color(0xff11998e), Color(0xff38ef7d)],
-    [Color(0xff396afc), Color(0xff2948ff)],
-    [Color(0xff834d9b), Color(0xffd04ed6)],
-    [Color(0xffcb2d3e), Color(0xffef473a)],
-    [Color(0xff232526), Color(0xff414345)],
+    [Color(0xfffff3ed), Color(0xfffffbf7)],
+    [Color(0xffecfffb), Color(0xfff8fffd)],
+    [Color(0xfff1f7ff), Color(0xfffbfdff)],
+    [Color(0xfffff8dc), Color(0xfffffdf3)],
+    [Color(0xfff7f2ff), Color(0xfffdfbff)],
+    [Color(0xfff8fafc), Color(0xffffffff)],
   ];
   return palettes[id % palettes.length];
-}
-
-int _largestPowerOfTwoAtMost(int value) {
-  var power = 1;
-  while (power * 2 <= value) {
-    power *= 2;
-  }
-  return power;
-}
-
-List<ScoredMenu> _ensureEven(List<ScoredMenu> items) {
-  if (items.length.isEven) return items;
-  return items.take(items.length - 1).toList();
 }
